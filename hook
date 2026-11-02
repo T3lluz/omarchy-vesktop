@@ -1,0 +1,3 @@
+#!/bin/bash
+# Rewrites Vesktop's Omarchy theme after a theme or font change.
+"$HOME/.local/bin/omarchy-vesktop-sync"

@@ -1,0 +1,117 @@
+#!/bin/bash
+
+# Writes omarchy.theme.css into every Vencord themes folder it finds.
+#
+# Colors come from the current Omarchy theme: its vesktop.css if the theme
+# ships one or Omarchy rendered ~/.config/omarchy/themed/vesktop.css.tpl into
+# it, otherwise this script renders the template itself. Corner rounding and
+# the font come from the same places the Omarchy shell reads them: Hyprland's
+# decoration:rounding and fc-match monospace.
+#
+# Settings in ~/.config/omarchy/vesktop.conf (all optional):
+#   font=all       Omarchy font for the whole UI (default)
+#   font=code      Omarchy font in code blocks only
+#   font=none      leave Discord's fonts alone
+#   rounding=yes   follow Hyprland's rounding (default), "no" keeps Discord's
+
+set -uo pipefail
+
+THEME_DIR="$HOME/.local/state/omarchy/current/theme"
+TEMPLATE="$HOME/.config/omarchy/themed/vesktop.css.tpl"
+CONFIG="$HOME/.config/omarchy/vesktop.conf"
+OUTPUT_NAME="omarchy.theme.css"
+
+THEME_DIRS=(
+  "$HOME/.config/vesktop/themes"
+  "$HOME/.var/app/dev.vencord.Vesktop/config/vesktop/themes"
+  "$HOME/.config/Vencord/themes"
+  "$HOME/.config/equibop/themes"
+)
+
+font_mode=all
+rounding_mode=yes
+if [[ -f $CONFIG ]]; then
+  while IFS='=' read -r key value; do
+    key="${key//[[:space:]]/}"
+    value="${value//[[:space:]]/}"
+    case "$key" in
+      font) font_mode="$value" ;;
+      rounding) rounding_mode="$value" ;;
+    esac
+  done < <(grep -v '^[[:space:]]*#' "$CONFIG")
+fi
+
+colors_css() {
+  if [[ -f $THEME_DIR/vesktop.css ]]; then
+    cat "$THEME_DIR/vesktop.css"
+  elif [[ -f $TEMPLATE && -f $THEME_DIR/colors.toml ]]; then
+    omarchy-theme-color --file "$THEME_DIR/colors.toml" --all |
+      while IFS=$'\t' read -r key value; do
+        printf 's|{{ %s }}|%s|g\n' "$key" "$value"
+      done | sed -f - "$TEMPLATE"
+  else
+    return 1
+  fi
+}
+
+# Discord's stock scale is xs 4, sm 8, md 12, lg 16, xl 24, xxl 32. Treating
+# Hyprland's rounding as "sm" keeps those proportions, so rounding = 8 gives
+# stock Discord and rounding = 0 gives square corners everywhere.
+rounding_css() {
+  local r
+  [[ $rounding_mode == yes ]] || return 0
+  r=$(hyprctl -j getoption decoration:rounding 2>/dev/null | jq -r '.int // empty' 2>/dev/null)
+  [[ $r =~ ^[0-9]+$ ]] || return 0
+
+  cat <<EOF
+
+/* Corner rounding from Hyprland (decoration:rounding = $r) */
+body {
+  --radius-xs: $((r / 2))px;
+  --radius-sm: ${r}px;
+  --radius-md: $((r * 3 / 2))px;
+  --radius-lg: $((r * 2))px;
+  --radius-xl: $((r * 3))px;
+  --radius-xxl: $((r * 4))px;
+}
+EOF
+}
+
+font_css() {
+  local family
+  [[ $font_mode == all || $font_mode == code ]] || return 0
+  family=$(fc-match -f '%{family[0]}' monospace 2>/dev/null)
+  [[ -n $family ]] || return 0
+  family="${family//\"/}"
+
+  printf '\n/* Font from Omarchy (%s) */\nbody {\n' "$family"
+  printf '  --font-code: "%s", monospace;\n' "$family"
+  if [[ $font_mode == all ]]; then
+    printf '  --font-primary: "%s", "gg sans", sans-serif;\n' "$family"
+    printf '  --font-display: "%s", "gg sans", sans-serif;\n' "$family"
+    printf '  --font-headline: "%s", "gg sans", sans-serif;\n' "$family"
+  fi
+  printf '}\n'
+}
+
+css=$(colors_css) || {
+  echo "omarchy-vesktop-sync: no vesktop.css or colors.toml in the current Omarchy theme" >&2
+  exit 1
+}
+css+=$(rounding_css)
+css+=$(font_css)
+
+for dir in "${THEME_DIRS[@]}"; do
+  # Only write for clients that are installed, so we don't create stray folders.
+  [[ -d $(dirname "$dir") ]] || continue
+  mkdir -p "$dir"
+  target="$dir/$OUTPUT_NAME"
+
+  # Skip unchanged output so a Hyprland reload doesn't make Vencord re-apply.
+  if [[ -f $target ]] && [[ $(cat "$target") == "$css" ]]; then
+    continue
+  fi
+
+  tmp="$dir/.$OUTPUT_NAME.tmp"
+  printf '%s\n' "$css" >"$tmp" && mv -f "$tmp" "$target"
+done
