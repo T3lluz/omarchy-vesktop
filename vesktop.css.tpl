@@ -1,8 +1,8 @@
 /**
  * @name Omarchy
  * @author T3lluz
- * @version 1.0.0
- * @description Follows your Omarchy theme colors, Hyprland corner rounding and Omarchy font.
+ * @version 1.0.1
+ * @description Follows your Omarchy theme colors, Hyprland corner rounding and Omarchy font. Keeps Discord's close button.
  */
 
 /* Raw palette from the current Omarchy theme's colors.toml */
@@ -356,14 +356,20 @@ body,
   color: var(--om-red);
 }
 
-/* Hyprland manages windows, so drop Discord's minimize/maximize/close buttons.
-   The inbox and help icons then sit at the right edge of the title bar. */
+/* Hyprland manages windows, so keep only Discord's close button, at the top
+   right. Minimize and maximize are hidden. Matching the close button by class
+   and falling back to the last child keeps this working when Discord renames
+   its hashes. */
 [class*="winButtons_"] {
-  /* Kept as a 4px spacer: with the bar's 8px gap that leaves the 12px edge
-     padding Discord drops on Linux when it draws its own buttons. */
-  width: 4px !important;
+  width: auto !important;
   min-width: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  overflow: visible !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+[class*="winButtons_"] > *:not([class*="winButtonClose"]):not(:last-child) {
+  display: none !important;
+}
+[class*="winButtonsWithDivider"]::before {
+  display: none !important;
 }

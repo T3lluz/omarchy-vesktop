@@ -8,7 +8,7 @@ It takes:
 - corner rounding from Hyprland's `decoration:rounding`, the same value the Omarchy shell reads. 0 gives square corners, 8 gives stock Discord.
 - the font from `fc-match monospace`, which is what `omarchy font set` changes
 
-It also hides Discord's minimize, maximize and close buttons, since Hyprland handles windows. The inbox and help icons move to the right edge.
+It also hides Discord's minimize and maximize buttons, since Hyprland handles windows, and keeps the close button in the top right corner. The inbox and help icons move to the right edge.
 
 | Tokyo Night | Flexoki Light | Solitude, rounding 10 |
 |---|---|---|
