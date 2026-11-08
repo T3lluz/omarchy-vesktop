@@ -33,6 +33,7 @@ rounding_mode=yes
 if [[ -f $CONFIG ]]; then
   while IFS='=' read -r key value; do
     key="${key//[[:space:]]/}"
+    value="${value%%#*}"
     value="${value//[[:space:]]/}"
     case "$key" in
       font) font_mode="$value" ;;
@@ -65,6 +66,7 @@ rounding_css() {
 
   cat <<EOF
 
+
 /* Corner rounding from Hyprland (decoration:rounding = $r) */
 body {
   --radius-xs: $((r / 2))px;
@@ -73,6 +75,75 @@ body {
   --radius-lg: $((r * 2))px;
   --radius-xl: $((r * 3))px;
   --radius-xxl: $((r * 4))px;
+  --custom-base-tile-border-radius: ${r}px;
+  --custom-app-top-bar-item-radius: $((r * 3 / 4))px;
+  --custom-emoji-picker-border-radius: ${r}px;
+}
+
+EOF
+
+  # Discord hardcodes 8px in a few places instead of using the scale above.
+  # At rounding 8 they already match, so skip the overrides. Each class-prefix
+  # selector is rechecked whenever any element's class changes, so the list
+  # stays short: the spots you see most.
+  (( r == 8 )) && return 0
+  cat <<EOF
+
+/* Menus and popups, the chat input and its buttons, reactions, the message
+   hover toolbar, image attachments, the stream picture-in-picture, the
+   server name dropdown and the rows in the DM sidebar and friends list */
+[role="menu"],
+[class*="pictureInPictureVideo_"],
+[class*="quickswitcher_"],
+[class*="scrollableContainer_"],
+[class*="reaction_"],
+[class*="reactionBtn_"],
+[class*="buttonsInner_"],
+[class*="visualMediaItemContainer_"],
+[class*="applicationStreamingPreviewWrapper_"],
+[class*="linkButton_"],
+[class*=" dm_"],
+[class*="guildDropdown_"],
+[class*="hoverBarButton_"],
+[class*="peopleListItem_"] {
+  border-radius: var(--radius-sm) !important;
+}
+/* The gift, GIF, sticker and emoji buttons in the chat input share prefixes
+   with buttons elsewhere that Discord leaves square, so these selectors need
+   the module hash. If Discord renames it, those corners fall back to stock
+   and nothing else changes. The app launcher has a stable class of its own. */
+[class*="button_hfM7yP"],
+[class*="emojiButton_2x8-Qn"],
+.app-launcher-entrypoint {
+  border-radius: var(--radius-sm) !important;
+}
+/* Mention and emoji suggestions sit flush on the chat input, so only their
+   top corners round. Sticker suggestions keep their stock 5px bottom. */
+[class*="autocomplete_"] {
+  border-start-start-radius: var(--radius-sm) !important;
+  border-start-end-radius: var(--radius-sm) !important;
+}
+/* The new messages bar hangs from the top of the chat */
+[class*="newMessagesBar_"] {
+  border-end-start-radius: var(--radius-sm) !important;
+  border-end-end-radius: var(--radius-sm) !important;
+}
+/* The notice bar above the app rounds only its top left corner */
+[class*="notice_"][class*="color"] {
+  border-start-start-radius: var(--radius-sm) !important;
+}
+/* Link embeds, menu item hover backgrounds and the server tags next to names */
+[class*="embedFull_"],
+[class*="chipletContainerInner_"],
+[role="menuitem"],
+[role="menuitemcheckbox"],
+[role="menuitemradio"] {
+  border-radius: var(--radius-xs) !important;
+}
+/* Active Now cards */
+[class*="itemCard_"],
+[class*="questCardContextMenuTrigger_"] {
+  border-radius: var(--radius-lg) !important;
 }
 EOF
 }
@@ -84,7 +155,7 @@ font_css() {
   [[ -n $family ]] || return 0
   family="${family//\"/}"
 
-  printf '\n/* Font from Omarchy (%s) */\nbody {\n' "$family"
+  printf '\n\n/* Font from Omarchy (%s) */\nbody {\n' "$family"
   printf '  --font-code: "%s", monospace;\n' "$family"
   if [[ $font_mode == all ]]; then
     printf '  --font-primary: "%s", "gg sans", sans-serif;\n' "$family"
