@@ -11,7 +11,7 @@
  * Omarchy's palette goes in as --om-* below. Everything else is derived from
  * it, so any theme, dark or light, gets the same treatment:
  *
- * - "text" variants of the accent and status colors are pushed away from the
+ * - "text" variants of the accent and palette colors are pushed away from the
  *   background until they read as text. Batou's dark grey accent, for one,
  *   would otherwise disappear on its near-black background.
  * - "fill" variants are capped at OKLab lightness 0.56, about 4.5:1 against
@@ -20,6 +20,8 @@
  *   unreadable.
  * - Text over video, images and gradients (the stream PiP, media viewers,
  *   banners) uses Discord's own overlay colors and is never themed.
+ * - Status colors stay Discord's own: presence, connection quality, Voice
+ *   Connected, notification badges, notices, errors and mentions.
  */
 
 /* Raw palette from the current Omarchy theme's colors.toml */
@@ -108,18 +110,12 @@ body {
   --om-red-fill-hover: oklch(from var(--om-red) calc(min(l, 0.56) - 0.04) c h);
   --om-green-fill: oklch(from var(--om-green) min(l, 0.56) c h);
   --om-green-fill-hover: oklch(from var(--om-green) calc(min(l, 0.56) - 0.04) c h);
-  --om-blue-fill: oklch(from var(--om-blue) min(l, 0.56) c h);
   /* Yellow carries dark text instead, so it stays light */
-  --om-yellow-fill: oklch(from var(--om-yellow) max(l, 0.8) c h);
 
   --om-accent-soft: color-mix(in oklab, var(--om-accent) 18%, transparent);
   --om-accent-faint: color-mix(in oklab, var(--om-accent) 9%, transparent);
   --om-red-soft: color-mix(in oklab, var(--om-red) 16%, transparent);
-  --om-red-faint: color-mix(in oklab, var(--om-red) 8%, transparent);
   --om-green-soft: color-mix(in oklab, var(--om-green) 16%, transparent);
-  --om-yellow-soft: color-mix(in oklab, var(--om-yellow) 14%, transparent);
-  --om-yellow-faint: color-mix(in oklab, var(--om-yellow) 8%, transparent);
-  --om-blue-soft: color-mix(in oklab, var(--om-blue) 16%, transparent);
 }
 
 /* Two classes of specificity so these win over Discord's .visual-refresh.theme-* rules */
@@ -143,15 +139,6 @@ body,
   --background-code: var(--om-bg-darker);
   --background-code-addition: color-mix(in oklab, var(--om-green) 18%, transparent);
   --background-code-deletion: color-mix(in oklab, var(--om-red) 18%, transparent);
-  --background-feedback-critical: var(--om-red-soft);
-  --background-feedback-info: var(--om-blue-soft);
-  --background-feedback-positive: var(--om-green-soft);
-  --background-feedback-warning: var(--om-yellow-soft);
-  --background-feedback-notification: var(--om-red-fill);
-  --background-feedback-mod-critical: var(--om-red-faint);
-  --background-feedback-mod-warning: var(--om-yellow-faint);
-  --background-feedback-mod-positive: color-mix(in oklab, var(--om-green) 8%, transparent);
-  --background-feedback-mod-info: color-mix(in oklab, var(--om-blue) 8%, transparent);
   --background-mod-subtle: var(--om-hover);
   --background-mod-muted: var(--om-hover);
   --background-mod-normal: var(--om-active);
@@ -169,7 +156,6 @@ body,
   --embed-background: var(--om-surface-1);
   --embed-background-alternate: var(--om-surface-2);
   --input-background-default: var(--om-bg-darker);
-  --input-background-error-default: var(--om-red-faint);
   --channeltextarea-background: var(--om-surface-1);
   --user-profile-overlay-background: var(--om-surface-1);
   --user-profile-overlay-background-hover: var(--om-hover);
@@ -184,12 +170,6 @@ body,
   --spoiler-revealed-background: var(--om-surface-2);
   --datepicker-range-background-default: var(--om-accent-soft);
   --datepicker-range-background-hover: var(--om-accent-soft);
-  --message-automod-background-default: var(--om-red-faint);
-  --message-automod-background-hover: var(--om-red-soft);
-  --toast-critical-background: var(--om-red-soft);
-  --toast-critical-border: var(--om-red);
-  --toast-success-background: var(--om-green-soft);
-  --toast-success-border: var(--om-green);
 
   /* Names Discord dropped but Vencord's own CSS still reads */
   --background-modifier-hover: var(--om-hover);
@@ -207,17 +187,6 @@ body,
   --text-link: var(--om-accent-text);
   --text-invert: var(--om-bg);
   --text-code: var(--om-text);
-  --text-feedback-critical: var(--om-red-text);
-  --text-feedback-positive: var(--om-green-text);
-  --text-feedback-warning: var(--om-yellow-text);
-  --text-feedback-info: var(--om-blue-text);
-  --text-status-online: var(--om-green);
-  --text-status-idle: var(--om-yellow);
-  --text-status-dnd: var(--om-red);
-  --text-status-offline: var(--om-text-muted);
-  --text-voice-connected: var(--om-green-text);
-  --text-voice-disconnected: var(--om-red-text);
-  --text-voice-speaking: var(--om-green-text);
   --chat-text-muted: var(--om-text-muted);
   --channel-text-area-placeholder: var(--om-text-muted);
   --input-placeholder-text-default: var(--om-text-muted);
@@ -234,17 +203,6 @@ body,
   --icon-brand: var(--om-accent-text);
   --icon-link: var(--om-accent-text);
   --icon-invert: var(--om-bg);
-  --icon-feedback-critical: var(--om-red-text);
-  --icon-feedback-positive: var(--om-green-text);
-  --icon-feedback-warning: var(--om-yellow-text);
-  --icon-feedback-info: var(--om-blue-text);
-  --icon-feedback-notification: var(--om-red-fill);
-  --icon-voice-muted: var(--om-red-text);
-  --icon-voice-connected: var(--om-green-text);
-  --icon-status-online: var(--om-green);
-  --icon-status-idle: var(--om-yellow);
-  --icon-status-dnd: var(--om-red);
-  --icon-status-offline: var(--om-text-muted);
 
   /* Interactive rows: channels, members, menu items */
   --interactive-background-hover: var(--om-hover);
@@ -264,19 +222,10 @@ body,
   --border-normal: var(--om-border);
   --border-strong: var(--om-border-strong);
   --border-focus: var(--om-accent-text);
-  --border-feedback-critical: var(--om-red);
-  --border-feedback-warning: var(--om-yellow);
-  --border-feedback-info: var(--om-blue);
-  --border-feedback-positive: var(--om-green);
-  --inlinenotice-border-critical: var(--om-red);
-  --inlinenotice-border-warning: var(--om-yellow);
-  --inlinenotice-border-info: var(--om-blue);
-  --inlinenotice-border-positive: var(--om-green);
   --input-border-default: var(--om-border);
   --input-border-hover: var(--om-border-strong);
   --input-border-active: var(--om-accent-text);
   --input-border-readonly: var(--om-border);
-  --input-border-error-default: var(--om-red);
 
   /* Buttons */
   --control-primary-background-default: var(--om-accent-fill);
@@ -379,8 +328,6 @@ body,
 
   /* Messages, mentions, reactions */
   --message-background-hover: color-mix(in oklab, var(--om-fg) 3%, transparent);
-  --message-mentioned-background-default: var(--om-yellow-faint);
-  --message-mentioned-background-hover: var(--om-yellow-soft);
   --message-highlight-background-default: var(--om-accent-faint);
   --message-highlight-background-hover: var(--om-accent-soft);
   --mention-background: var(--om-accent-soft);
@@ -402,44 +349,17 @@ body,
   --polls-victor-fill: var(--om-green-soft);
   --spine-default: var(--om-border-strong);
 
-  /* Badges, statuses, notices */
+  /* Badges. Status colors (presence, connection quality, Voice Connected,
+     notification badges, notices, errors, mentions) are left to Discord:
+     they carry meaning, and a theme's green or red can be a shade of grey. */
   --badge-background-default: var(--om-accent-fill);
   --badge-text-default: #fff;
-  --badge-notification-background: var(--om-red-fill);
-  --badge-notification-text: #fff;
-  --badge-notification-border: transparent;
-  --badge-critical-background: var(--om-red-fill);
-  --badge-critical-text: #fff;
-  --badge-critical-border: transparent;
   --badge-primary-background: var(--om-accent-fill);
   --badge-primary-text: #fff;
   --badge-primary-border: transparent;
-  --badge-success-background: var(--om-green-fill);
-  --badge-success-text: #fff;
-  --badge-success-border: transparent;
-  --badge-warning-background: var(--om-yellow-fill);
-  --badge-warning-text: #000;
-  --badge-warning-border: transparent;
   --badge-secondary-background: var(--om-active);
   --badge-secondary-text: var(--om-fg);
   --badge-secondary-border: transparent;
-  --status-online: var(--om-green);
-  --status-danger: var(--om-red-fill);
-  --status-positive: var(--om-green-fill);
-  --status-positive-background: var(--om-green-fill);
-  --status-positive-text: #fff;
-  --status-warning: var(--om-yellow);
-  --status-warning-background: var(--om-yellow-fill);
-  --status-warning-text: #000;
-  --status-speaking: var(--om-green);
-  --notice-background-info: var(--om-blue-fill);
-  --notice-background-positive: var(--om-green-fill);
-  --notice-background-warning: var(--om-yellow-fill);
-  --notice-background-critical: var(--om-red-fill);
-  --notice-text-info: #fff;
-  --notice-text-positive: #fff;
-  --notice-text-warning: #000;
-  --notice-text-critical: #fff;
 
   /* Code blocks: syntax colors from the theme, ANSI from the terminal palette */
   --text-code-comment: var(--om-text-muted);
@@ -515,10 +435,6 @@ body,
   --brand-560: var(--om-accent-fill-hover);
   --brand-600: var(--om-accent-fill-active);
   --blurple-50: var(--om-accent-fill);
-  --red-400: var(--om-red-fill);
-  --red-500: var(--om-red-fill);
-  --green-360: var(--om-green-fill);
-  --yellow-300: var(--om-yellow);
 }
 
 /* Set on the root only. Descendants inherit highlight styles, and a bare

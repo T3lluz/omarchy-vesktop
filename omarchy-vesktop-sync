@@ -87,7 +87,53 @@ EOF
   # selector is rechecked whenever any element's class changes, so the list
   # stays short: the spots you see most.
   (( r == 8 )) && return 0
+
+  # Server icons, the home button and the add server button are clipped by
+  # an SVG mask whose path Discord morphs on hover. Replace that path with a
+  # 40x40 rounded square, so every state uses Hyprland's corners.
+  local ir=$((r * 3 / 2)) e
+  (( ir > 20 )) && ir=20
+  e=$((40 - ir))
   cat <<EOF
+
+/* Server list icons, in every hover and selected state */
+path[id\$="-blob_mask"] {
+  d: path("M0 $ir A$ir $ir 0 0 1 $ir 0 H$e A$ir $ir 0 0 1 40 $ir V$e A$ir $ir 0 0 1 $e 40 H$ir A$ir $ir 0 0 1 0 $e Z") !important;
+}
+/* Folder previews round only each icon's outer corner, like stock */
+[class*="folderPreviewGuildIcon_"] {
+  border-radius: var(--radius-xs) !important;
+}
+[class*="folderPreviewGuildIcon_"]:nth-child(1) {
+  border-start-start-radius: max(0px, calc(var(--radius-lg) - 3px)) !important;
+}
+[class*="folderPreviewGuildIcon_"]:nth-child(2) {
+  border-start-end-radius: max(0px, calc(var(--radius-lg) - 3px)) !important;
+}
+[class*="folderPreviewGuildIcon_"]:nth-child(3) {
+  border-end-start-radius: max(0px, calc(var(--radius-lg) - 3px)) !important;
+}
+[class*="folderPreviewGuildIcon_"]:nth-child(4) {
+  border-end-end-radius: max(0px, calc(var(--radius-lg) - 3px)) !important;
+}
+
+/* Call controls: button groups, buttons, split buttons and the participants pill */
+[class*="buttonSection_"],
+[class*="fullRegionButton_"],
+[class*="fullRegionDropdownButton_"] {
+  border-radius: var(--radius-md) !important;
+}
+[class*="centerButton_"],
+[class*="contextMenuNub_"],
+[class*="participantsButton_"] {
+  border-radius: var(--radius-sm) !important;
+}
+[class*="attachedButton_"] {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important;
+}
+[class*="attachedCaret_"] {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+}
 
 /* Menus and popups, the chat input and its buttons, reactions, the message
    hover toolbar, image attachments, the stream picture-in-picture, the

@@ -5,7 +5,7 @@ A Vencord theme for [Vesktop](https://github.com/Vencord/Vesktop) that follows y
 It takes:
 
 - colors from the current Omarchy theme's `colors.toml`, light themes included
-- corner rounding from Hyprland's `decoration:rounding`, the same value the Omarchy shell reads. 0 gives square corners, 8 gives stock Discord. Call and stream tiles, the stream picture-in-picture, menus, the chat input and reactions follow it too.
+- corner rounding from Hyprland's `decoration:rounding`, the same value the Omarchy shell reads. 0 gives square corners, 8 gives stock Discord. Server icons and the home button (in every hover and selected state), call controls, call and stream tiles, the stream picture-in-picture, menus, the chat input and reactions follow it too.
 - the font from `fc-match monospace`, which is what `omarchy font set` changes
 
 It also hides Discord's minimize and maximize buttons, since Hyprland handles windows, and keeps the close button in the top right corner. The inbox and help icons move to the right edge.
@@ -15,6 +15,7 @@ Some details that hold on every theme:
 - Text over video and images, like the stream picture-in-picture title, keeps Discord's white overlay color.
 - Buttons, badges and other filled surfaces get a darker version of the accent when the theme's accent is too light for white text. Catppuccin's pastel blue would otherwise put white labels at about 2:1.
 - Links and other accent-colored text get lightened on dark themes and darkened on light ones until they're readable.
+- Status colors stay Discord's own: presence dots, connection quality, Voice Connected, notification badges, notices and errors. They carry meaning, and some themes' green or red is a shade of grey.
 - ANSI code blocks use the terminal's 16 colors from the theme.
 - Popups and menus get a 1px border instead of a blurred shadow, like Hyprland windows.
 
@@ -73,10 +74,10 @@ Measured on a frozen snapshot of a busy Discord channel in headless Chromium, ag
 
 | | Restyle the whole app | Restyle elements whose classes change |
 |---|---|---|
-| This theme | about +8% | about +23% |
-| Version 1.0 | about +6% | about +39% |
+| This theme | about +1% | about +31% |
+| Version 1.0 | about +1% | about +36% |
 
-Most of the incremental cost is the corner fixes (about +7% without them), since Chrome rechecks each class-prefix selector whenever an element's classes change. A bare `::selection` rule cost more than every color variable combined, so the selection color sits on the root element and descendants inherit it.
+Most of the incremental cost is the corner fixes, since Chrome rechecks each class-prefix selector whenever an element's classes change. A bare `::selection` rule cost more than every color variable combined, so the selection color sits on the root element and descendants inherit it.
 
 ## Remove
 
